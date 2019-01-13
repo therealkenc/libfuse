@@ -134,7 +134,7 @@ FUSE_3.0 {
 
 FUSE_3.1 {
 	global:
-	        fuse_lib_help;
+	    fuse_lib_help;
 		fuse_invalidate_path;
 		fuse_new_30;
 		fuse_new;
@@ -151,6 +151,15 @@ FUSE_3.2 {
 FUSE_3.3 {
 	global:
 		fuse_open_channel;
+		fuse_session_loop_mt;
+		fuse_session_loop_mt_32;
+		fuse_loop_mt;
+		fuse_loop_mt_32;
+		fuse_reply_ok;
+		fuse_req_new;
+		fuse_req_free;
+		fuse_req_fd;
+		fuse_req_dispatch;
 } FUSE_3.2;
 
 # Local Variables:

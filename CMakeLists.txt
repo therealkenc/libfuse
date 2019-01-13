@@ -1,0 +1,6 @@
+set(FUSE_USE_VERSION 33)
+set(LIBFUSE_SOVERSION_MAJOR "3")
+set(LIBFUSE_SOVERSION "3.3.0")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+add_subdirectory(lib)
+add_subdirectory(util)

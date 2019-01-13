@@ -144,7 +144,13 @@ void fuse_free_req(fuse_req_t req)
 		destroy_req(req);
 }
 
-static struct fuse_req *fuse_ll_alloc_req(struct fuse_session *se)
+// bikeshed: follow fuse_object_thingtodo convention for public facing method
+void fuse_req_free(fuse_req_t req)
+{
+	fuse_free_req(req);
+}
+
+fuse_req_t fuse_req_new(struct fuse_session *se, const struct fuse_ctx *ctx)
 {
 	struct fuse_req *req;
 
@@ -154,11 +160,19 @@ static struct fuse_req *fuse_ll_alloc_req(struct fuse_session *se)
 	} else {
 		req->se = se;
 		req->ctr = 1;
+		req->ctx = *ctx;
 		list_init_req(req);
 		fuse_mutex_init(&req->lock);
 	}
 
 	return req;
+}
+
+static fuse_req_t fuse_ll_alloc_req(struct fuse_session *se)
+{
+	struct fuse_ctx ctx;
+	memset(&ctx, 0, sizeof(ctx));
+	return fuse_req_new(se, &ctx);
 }
 
 /* Send data. If *ch* is NULL, send via session master fd */
@@ -304,9 +318,14 @@ static void convert_statfs(const struct statvfs *stbuf,
 	kstatfs->namelen = stbuf->f_namemax;
 }
 
-static int send_reply_ok(fuse_req_t req, const void *arg, size_t argsize)
+int fuse_reply_ok(fuse_req_t req, const void *arg, size_t argsize)
 {
 	return send_reply(req, 0, arg, argsize);
+}
+
+static int send_reply_ok(fuse_req_t req, const void *arg, size_t argsize)
+{
+	return fuse_reply_ok(req, arg, argsize);
 }
 
 int fuse_reply_err(fuse_req_t req, int err)
@@ -2324,6 +2343,11 @@ const struct fuse_ctx *fuse_req_ctx(fuse_req_t req)
 	return &req->ctx;
 }
 
+int fuse_req_fd(fuse_req_t req)
+{
+	return (req->ch) ? req->ch->fd : req->se->fd;
+}
+
 void fuse_req_interrupt_func(fuse_req_t req, fuse_interrupt_func_t func,
 			     void *data)
 {
@@ -2427,6 +2451,17 @@ void fuse_session_process_buf(struct fuse_session *se,
 			      const struct fuse_buf *buf)
 {
 	fuse_session_process_buf_int(se, buf, NULL);
+}
+
+void fuse_req_dispatch(fuse_req_t req, uint32_t opcode, uint64_t nodeid, 
+	const void *inarg, const struct fuse_buf *buf)
+{
+	if (opcode == FUSE_WRITE && req->se->op.write_buf)
+		do_write_buf(req, nodeid, inarg, buf);
+	else if (opcode == FUSE_NOTIFY_REPLY)
+		do_notify_reply(req, nodeid, inarg, buf);
+	else
+		fuse_ll_ops[opcode].func(req, nodeid, inarg);
 }
 
 void fuse_session_process_buf_int(struct fuse_session *se,
@@ -3027,3 +3062,4 @@ int fuse_session_exited(struct fuse_session *se)
 {
 	return se->exited;
 }
+

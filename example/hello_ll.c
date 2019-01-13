@@ -37,12 +37,12 @@ static int hello_stat(fuse_ino_t ino, struct stat *stbuf)
 	stbuf->st_ino = ino;
 	switch (ino) {
 	case 1:
-		stbuf->st_mode = S_IFDIR | 0755;
+		stbuf->st_mode = __S_IFDIR | 0755;
 		stbuf->st_nlink = 2;
 		break;
 
 	case 2:
-		stbuf->st_mode = S_IFREG | 0444;
+		stbuf->st_mode = __S_IFREG | 0444;
 		stbuf->st_nlink = 1;
 		stbuf->st_size = strlen(hello_str);
 		break;

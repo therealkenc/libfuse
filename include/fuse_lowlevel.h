@@ -1185,6 +1185,8 @@ struct fuse_lowlevel_ops {
  */
 int fuse_reply_err(fuse_req_t req, int err);
 
+int fuse_reply_ok(fuse_req_t req, const void *arg, size_t argsize);
+
 /**
  * Don't send reply
  *
@@ -1990,6 +1992,12 @@ void fuse_session_process_buf(struct fuse_session *se,
  * @return the actual size of the raw request, or -errno on error
  */
 int fuse_session_receive_buf(struct fuse_session *se, struct fuse_buf *buf);
+
+fuse_req_t fuse_req_new(struct fuse_session *se, const struct fuse_ctx *ctx);
+void fuse_req_free(fuse_req_t req);
+int fuse_req_fd(fuse_req_t req);
+void fuse_req_dispatch(fuse_req_t req, uint32_t opcode, uint64_t nodeid, 
+	const void *inarg, const struct fuse_buf *buf);
 
 #ifdef __cplusplus
 }

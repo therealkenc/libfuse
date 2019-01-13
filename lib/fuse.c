@@ -2667,7 +2667,12 @@ static void fuse_lib_lookup(fuse_req_t req, fuse_ino_t parent,
 			} else {
 				if (f->conf.debug)
 					fprintf(stderr, "LOOKUP-DOTDOT\n");
-				parent = get_node(f, parent)->parent->nodeid;
+				struct node *parent_node = get_node(f, parent);
+				if (!parent_node) {
+					fprintf(stderr, "fuse internal error: lookup .. of root node impossible\n");
+					abort();
+				}
+				parent = parent_node->nodeid;
 			}
 			pthread_mutex_unlock(&f->lock);
 			name = NULL;
