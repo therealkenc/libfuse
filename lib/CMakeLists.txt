@@ -14,16 +14,16 @@ set(LIBFUSE_SRC
     mount.c
 )
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/config")
-add_library(fuse SHARED ${LIBFUSE_SRC})
-target_compile_definitions(fuse PUBLIC 
+add_library(fuse3 SHARED ${LIBFUSE_SRC})
+target_compile_definitions(fuse3 PUBLIC 
     _FILE_OFFSET_BITS=64 
     FUSE_USE_VERSION=${FUSE_USE_VERSION}
     FUSERMOUNT_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
 )
-target_link_libraries(fuse
+target_link_libraries(fuse3
     dl
     pthread
 )
 set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/fuse_versionscript")
-set_property(TARGET fuse PROPERTY SOVERSION "${LIBFUSE_SOVERSION_MAJOR}")
-set_property(TARGET fuse PROPERTY VERSION "${LIBFUSE_SOVERSION}")
+set_property(TARGET fuse3 PROPERTY SOVERSION "${LIBFUSE_SOVERSION_MAJOR}")
+set_property(TARGET fuse3 PROPERTY VERSION "${LIBFUSE_SOVERSION}")
