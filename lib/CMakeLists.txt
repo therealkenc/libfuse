@@ -15,7 +15,7 @@ set(LIBFUSE_SRC
 )
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/config")
 add_library(fuse3 SHARED ${LIBFUSE_SRC})
-target_compile_definitions(fuse3 PUBLIC 
+target_compile_definitions(fuse3 PRIVATE 
     _FILE_OFFSET_BITS=64 
     FUSE_USE_VERSION=${FUSE_USE_VERSION}
     FUSERMOUNT_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
